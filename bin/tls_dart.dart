@@ -1,13 +1,19 @@
 // ignore: unused_import
-import 'package:tls_dart/tls_dart.dart' as tls_dart;
-import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
 
 Future<void> main(List<String> arguments) async {
-  var url = Uri.https('httpbin.org', 'post');
-  var response =
-      await http.post(url, body: {'name': 'doodle', 'color': 'blue'});
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
-
-  print(await http.read(Uri.https('httpbin.org', 'get')));
+  var client = HttpClient();
+  try {
+    HttpClientRequest request =
+        await client.get('httpbin.org', 80, '/file.txt');
+    // Optionally set up headers...
+    // Optionally write to the request object...
+    HttpClientResponse response = await request.close();
+    // Process the response
+    final stringData = await response.transform(utf8.decoder).join();
+    print(stringData);
+  } finally {
+    client.close();
+  }
 }
