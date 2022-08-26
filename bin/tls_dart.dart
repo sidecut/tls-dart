@@ -3,18 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 Future<void> main(List<String> arguments) async {
-  var client = HttpClient();
-  try {
-    var request = await client.getUrl(Uri.https('httpbin.org', 'get'));
-    var response = await request.close();
-    print('${response.statusCode}');
-    print('${response.headers.contentType}');
-    print('${response.certificate?.pem}');
-    print("");
+  var log = File('tls-log.log');
 
-    var body = await response.transform(utf8.decoder).join();
-    print(body);
+  var socket = await SecureSocket.connect('httpbin.org', 443,
+      keyLog: (line) => log.writeAsStringSync(line, mode: FileMode.append));
+  try {
+    socket.writeln("GET /get");
+    socket.writeln("");
   } finally {
-    client.close();
+    socket.close();
   }
 }
